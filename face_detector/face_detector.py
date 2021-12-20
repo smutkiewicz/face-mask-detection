@@ -7,6 +7,7 @@ IMAGES_FOLDER_PATH = r'images/'
 RESIZED_IMAGES_FOLDER_PATH = r'resized_images/'
 IMAGE_SIZE = 224
 
+
 # test function used to calibrate classifier
 def show_image_with_indications():
 	image = cv2.imread(IMAGES_FOLDER_PATH + 'easter_egg.jpg')
