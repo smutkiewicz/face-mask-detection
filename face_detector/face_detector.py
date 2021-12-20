@@ -9,7 +9,7 @@ IMAGE_SIZE = 224
 
 # test function used to calibrate classifier
 def show_image_with_indications():
-	image = cv2.imread(IMAGES_FOLDER_PATH + 'przystojniak_1.jpg')
+	image = cv2.imread(IMAGES_FOLDER_PATH + 'easter_egg.jpg')
 	classifier = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 	
 	boxes = classifier.detectMultiScale(image, 1.2, 5)
@@ -18,7 +18,7 @@ def show_image_with_indications():
 		x2, y2 = x + width, y + height
 		cv2.rectangle(image, (x, y), (x2, y2), (0,0,255), 1)
 
-	cv2.imshow('face detection', image)
+	cv2.imshow('TEST', image)
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
 
@@ -71,7 +71,7 @@ def main() :
 		image_index += 1
 
 	# uncomment to test a single image
-	#show_image_with_indications()
+	# show_image_with_indications()
 
 
 
