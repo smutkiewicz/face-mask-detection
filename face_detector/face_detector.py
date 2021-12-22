@@ -3,7 +3,8 @@ import os
 import glob
 
 
-IMAGES_FOLDER_PATH = r'images/'
+IMAGES_FOLDER_PATH = r'regular_images/'
+# IMAGES_FOLDER_PATH = r'masked_images/'
 RESIZED_IMAGES_FOLDER_PATH = r'resized_images/'
 IMAGE_SIZE = 224
 
