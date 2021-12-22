@@ -3,17 +3,17 @@ import os
 import glob
 
 
-IMAGES_FOLDER_PATH = r'regular_images/'
-# IMAGES_FOLDER_PATH = r'masked_images/'
-RESIZED_IMAGES_FOLDER_PATH = r'resized_images/'
+# IMAGES_FOLDER_PATH = r'regular-images/'
+IMAGES_FOLDER_PATH = r'masked-images/'
+RESIZED_IMAGES_FOLDER_PATH = r'resized-images/'
 IMAGE_SIZE = 224
 
 
 # test function used to calibrate classifier
 def show_image_with_indications():
-	image = cv2.imread(IMAGES_FOLDER_PATH + 'easter_egg.jpg')
+	image = cv2.imread(IMAGES_FOLDER_PATH + 'test1.jpg')
 	classifier = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-	
+
 	boxes = classifier.detectMultiScale(image, 1.2, 5)
 	for box in boxes:
 		x, y, width, height = box
@@ -35,7 +35,7 @@ def resize_image(image, x, x2, y, y2):
 
 def save_resized_face_image(image, image_index, box_index, x, x2, y, y2):
 	resized_image = resize_image(image, x, x2, y, y2)
-	filename = str(image_index) + '_' + str(box_index) + '.jpg'
+	filename = str(image_index) + '-' + str(box_index) + '.jpg'
 	os.chdir(RESIZED_IMAGES_FOLDER_PATH)
 	cv2.imwrite(filename, resized_image)
 	os.chdir('..')
