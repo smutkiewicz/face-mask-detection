@@ -2,7 +2,7 @@ import cv2
 import os
 import glob
 
-
+# switch between masked and no-masked images
 # IMAGES_FOLDER_PATH = r'regular-images/'
 IMAGES_FOLDER_PATH = r'masked-images/'
 RESIZED_IMAGES_FOLDER_PATH = r'resized-images/'
