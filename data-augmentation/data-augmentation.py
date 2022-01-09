@@ -36,7 +36,7 @@ def clear_modified_images():
          os.remove(f)
 
 
-def save_image(image: any, filename):
+def save_image(image: any, filename: str):
     os.chdir(MODIFIED_IMAGES_FOLDER_PATH)
     cv2.imwrite(filename + ".jpg", image)
     os.chdir('..')
