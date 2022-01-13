@@ -1,10 +1,14 @@
 import cv2
 import os
 import glob
+import pandas
+import copy
+import numpy
 
 
 TEST_IMAGES_FOLDER_PATH = r'test-images/'
 MODIFIED_IMAGES_FOLDER_PATH = r'modified-images/'
+CROPPED_IMAGES_FOLDER_PATH = r'cropped_images/'
 
 
 def horizontal_flip(image: any):
@@ -31,30 +35,28 @@ def increase_brightness(image: any):
 
 
 def clear_modified_images():
-	files = glob.glob(MODIFIED_IMAGES_FOLDER_PATH + '*.jpg')
+	files = glob.glob(MODIFIED_IMAGES_FOLDER_PATH + '*.png')
 	for f in files:
          os.remove(f)
 
 
 def save_image(image: any, filename: str):
     os.chdir(MODIFIED_IMAGES_FOLDER_PATH)
-    cv2.imwrite(filename + ".jpg", image)
+    cv2.imwrite(filename + ".png", image)
     os.chdir('..')
 
 
-def modify_and_save_images(image: any, image_index: int, brighten = False):
-    image[brighten] = increase_brightness(image)
-    suffix = "-b" if brighten else "-"
+def modify_and_save_images(image: any, file_suffix: str):
+    suffix = "-"
 
-    save_image(image, str(image_index) + suffix)
-    save_image(horizontal_flip(image), str(image_index) + suffix + "h")
-    save_image(vertical_flip(image), str(image_index) + suffix + "v")
-    save_image(horizontal_flip(vertical_flip(image)), str(image_index) + suffix + "hv")
+    save_image(horizontal_flip(image), file_suffix[:-4] + suffix + "h")
+    save_image(vertical_flip(image), file_suffix[:-4] + suffix + "v")
+    save_image(horizontal_flip(vertical_flip(image)), file_suffix[:-4] + suffix + "hv")
+    save_image(increase_brightness(image), file_suffix[:-4] + suffix + "b")
 
 
-def handle_image(image: any, image_index: int):
-    modify_and_save_images(image, image_index)
-    modify_and_save_images(image, image_index, True)
+def handle_image(image: any, file_suffix: str):
+    modify_and_save_images(image, file_suffix)
 
 
 def main():
@@ -66,8 +68,43 @@ def main():
     image_index = 1
 
     for path in images_paths:
-        handle_image(cv2.imread(path), image_index)
+        handle_image(cv2.imread(path), str(image_index))
         image_index += 1
+
+
+
+# ==========================================================================================================
+
+
+
+def augment_data():
+    clear_modified_images()
+    csv = pandas.read_csv('train_df.csv').to_numpy()
+
+    mask_off = []
+
+    #xmin,ymin,xmax,ymax,label,file,width,height,annotation_file,image_file,cropped_image_file
+
+    for element in csv:
+     if element[4] == 'without_mask':
+        mask_off.append(True)
+     else:
+        mask_off.append(False)
+
+    csv = csv[mask_off]
+
+    augmented_csv = []
+    suffixes = ['-h', '-v', '-hv', '-b']
+    for element in csv:
+        handle_image(cv2.imread(CROPPED_IMAGES_FOLDER_PATH + element[10]), element[10])
+
+        for suffix in suffixes:
+            position = copy.deepcopy(element)
+            position[10] = position[10][:-4] + suffix + position[10][-4:]
+            augmented_csv.append(position)
+
+    dataframe = pandas.DataFrame(numpy.array(augmented_csv), columns=['xmin', 'ymin', 'xmax', 'ymax', 'label', 'file', 'width', 'height', 'annotation_file', 'image_file', 'cropped_image_file'])
+    dataframe.to_csv('augmented_cropped_images.csv', index=False)
 
 
 
@@ -77,4 +114,5 @@ def main():
 
 
 
-main()
+# main()
+augment_data()
