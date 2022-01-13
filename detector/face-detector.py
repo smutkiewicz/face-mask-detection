@@ -25,7 +25,7 @@ def show_image_with_indications():
 	cv2.destroyAllWindows()
 
 
-def resize_image(image, x, x2, y, y2):
+def resize_image(image: any, x: int, x2: int, y: int, y2: int):
 	spread = 10
 	cropped_image = image[y - spread : y2 + spread, x - spread : x2 + spread]
 	dim = (IMAGE_SIZE, IMAGE_SIZE)
@@ -33,7 +33,7 @@ def resize_image(image, x, x2, y, y2):
 	return cv2.resize(cropped_image, dim, interpolation = cv2.INTER_AREA)
 
 
-def save_resized_face_image(image, image_index, box_index, x, x2, y, y2):
+def save_resized_face_image(image: any, image_index: int, box_index: int, x: int, x2: int, y: int, y2: int):
 	resized_image = resize_image(image, x, x2, y, y2)
 	filename = str(image_index) + '-' + str(box_index) + '.jpg'
 	os.chdir(RESIZED_IMAGES_FOLDER_PATH)
@@ -41,7 +41,7 @@ def save_resized_face_image(image, image_index, box_index, x, x2, y, y2):
 	os.chdir('..')
 
 
-def handle_image(image: any, image_index, classifier: any):
+def handle_image(image: any, image_index: int, classifier: any):
 	boxes = classifier.detectMultiScale(image, 1.2, 5)
 	box_index = 1
 
