@@ -14,7 +14,7 @@ from sklearn.metrics import accuracy_score
 BATCH_SIZE = 32
 key_cropped = 'cropped_image_file'
 key_label = 'label'
-cropped_dir = './cropped_images'
+cropped_dir = './resized-images'
 test_df_file_name = './images.csv'
 classifier_path = "./classifier.h5"
 
@@ -25,7 +25,7 @@ SEED_SIZE = 42
 
 test_df = pd.read_csv(test_df_file_name)
 
-image_target_size = (24, 22)
+image_target_size = (224, 224)
 
 test_image_generator = ImageDataGenerator(rescale = 1. / 255.)
 test_generator = test_image_generator.flow_from_dataframe(
@@ -37,7 +37,8 @@ test_generator = test_image_generator.flow_from_dataframe(
     seed = SEED_SIZE,
     shuffle = True,
     class_mode = 'categorical',
-    target_size = image_target_size
+    target_size = image_target_size,
+    validate_filenames=False
 )
 
 generator = test_generator

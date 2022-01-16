@@ -8,6 +8,8 @@ import numpy
 # IMAGES_FOLDER_PATH = r'regular-images/'
 IMAGES_FOLDER_PATH = r'masked-images/'
 RESIZED_IMAGES_FOLDER_PATH = r'resized-images/'
+MASKED_RESIZED_IMAGES_FOLDER_PATH = r'masked-resized-images/'
+UNMASKED_RESIZED_IMAGES_FOLDER_PATH = r'unmasked-resized-images/'
 IMAGE_SIZE = 224
 
 
@@ -37,8 +39,11 @@ def resize_image(image: any, x: int, x2: int, y: int, y2: int):
 
 def save_resized_face_image(image: any, image_index: int, box_index: int, x: int, x2: int, y: int, y2: int):
 	resized_image = resize_image(image, x, x2, y, y2)
-	filename = str(image_index) + '-' + str(box_index) + '.jpg'
+	filename = 'm-' + str(image_index) + '-' + str(box_index) + '.jpg'
 	os.chdir(RESIZED_IMAGES_FOLDER_PATH)
+	cv2.imwrite(filename, resized_image)
+	os.chdir('..')
+	os.chdir(MASKED_RESIZED_IMAGES_FOLDER_PATH)
 	cv2.imwrite(filename, resized_image)
 	os.chdir('..')
 
@@ -56,19 +61,23 @@ def handle_image(image: any, image_index: int, classifier: any):
 
 def clear_resized_images():
 	files = glob.glob(RESIZED_IMAGES_FOLDER_PATH + '*.jpg')
+	files.append
 	for f in files:
          os.remove(f)
 
 
 def generate_csv():
-	images_paths = list(filter(lambda k: '.jpg' in k, os.listdir(RESIZED_IMAGES_FOLDER_PATH)))
-
 	csv_data = []
 
-	#xmin,ymin,xmax,ymax,label,file,width,height,annotation_file,image_file,cropped_image_file
+	images_paths = list(filter(lambda k: '.jpg' in k, os.listdir(MASKED_RESIZED_IMAGES_FOLDER_PATH)))
 
 	for path in images_paths:
 		csv_data.append([0, 0, 0, 0, 'with_mask', '1.jpg', 0, 0, '1', '1', path])
+
+	images_paths = list(filter(lambda k: '.jpg' in k, os.listdir(UNMASKED_RESIZED_IMAGES_FOLDER_PATH)))
+
+	for path in images_paths:
+		csv_data.append([0, 0, 0, 0, 'without_mask', '1.jpg', 0, 0, '1', '1', path])
 
 	print(csv_data)
 
@@ -77,7 +86,7 @@ def generate_csv():
 
 
 def main() :
-	clear_resized_images()
+	# clear_resized_images()
 
 	images_paths = list(filter(lambda k: 'jpg' in k, os.listdir(IMAGES_FOLDER_PATH)))
 	images_paths = [IMAGES_FOLDER_PATH + path for path in images_paths]
