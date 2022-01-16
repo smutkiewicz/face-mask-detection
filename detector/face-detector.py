@@ -1,6 +1,8 @@
 import cv2
 import os
 import glob
+import pandas
+import numpy
 
 # switch between masked and no-masked images
 # IMAGES_FOLDER_PATH = r'regular-images/'
@@ -58,6 +60,22 @@ def clear_resized_images():
          os.remove(f)
 
 
+def generate_csv():
+	images_paths = list(filter(lambda k: '.jpg' in k, os.listdir(RESIZED_IMAGES_FOLDER_PATH)))
+
+	csv_data = []
+
+	#xmin,ymin,xmax,ymax,label,file,width,height,annotation_file,image_file,cropped_image_file
+
+	for path in images_paths:
+		csv_data.append([0, 0, 0, 0, 'with_mask', '1.jpg', 0, 0, '1', '1', path])
+
+	print(csv_data)
+
+	dataframe = pandas.DataFrame(numpy.array(csv_data), columns=['xmin', 'ymin', 'xmax', 'ymax', 'label', 'file', 'width', 'height', 'annotation_file', 'image_file', 'cropped_image_file'])
+	dataframe.to_csv('images.csv', index=False)
+
+
 def main() :
 	clear_resized_images()
 
@@ -72,6 +90,7 @@ def main() :
 		handle_image(cv2.imread(path), image_index, cascade_classifier)
 		image_index += 1
 
+	generate_csv()
 	# uncomment to test a single image
 	# show_image_with_indications()
 

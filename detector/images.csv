@@ -1,0 +1,14 @@
+xmin,ymin,xmax,ymax,label,file,width,height,annotation_file,image_file,cropped_image_file
+0,0,0,0,with_mask,1.jpg,0,0,1,1,2-11.jpg
+0,0,0,0,with_mask,1.jpg,0,0,1,1,2-9.jpg
+0,0,0,0,with_mask,1.jpg,0,0,1,1,2-8.jpg
+0,0,0,0,with_mask,1.jpg,0,0,1,1,2-10.jpg
+0,0,0,0,with_mask,1.jpg,0,0,1,1,2-12.jpg
+0,0,0,0,with_mask,1.jpg,0,0,1,1,2-1.jpg
+0,0,0,0,with_mask,1.jpg,0,0,1,1,2-3.jpg
+0,0,0,0,with_mask,1.jpg,0,0,1,1,2-2.jpg
+0,0,0,0,with_mask,1.jpg,0,0,1,1,2-6.jpg
+0,0,0,0,with_mask,1.jpg,0,0,1,1,2-7.jpg
+0,0,0,0,with_mask,1.jpg,0,0,1,1,2-5.jpg
+0,0,0,0,with_mask,1.jpg,0,0,1,1,2-4.jpg
+0,0,0,0,with_mask,1.jpg,0,0,1,1,1-1.jpg
