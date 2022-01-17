@@ -7,7 +7,7 @@ import tensorflow
 
 IMAGES_TO_EXAMINE_FOLDER_PATH = r'images-to-examine/'
 MARKED_IMAGES_FOLDER_PATH = r'marked-images/'
-CLASSIFIER_PATH = "./classifier-simplified.h5"
+CLASSIFIER_PATH = r'classifier-simplified.h5'
 IMAGE_SIZE = (24, 22)
 
 
