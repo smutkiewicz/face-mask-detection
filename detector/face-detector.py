@@ -1,21 +1,19 @@
 import cv2
 import os
 import glob
-import pandas
 import numpy
+import tensorflow
 
-# switch between masked and no-masked images
-# IMAGES_FOLDER_PATH = r'regular-images/'
-IMAGES_FOLDER_PATH = r'masked-images/'
-RESIZED_IMAGES_FOLDER_PATH = r'resized-images/'
-MASKED_RESIZED_IMAGES_FOLDER_PATH = r'masked-resized-images/'
-UNMASKED_RESIZED_IMAGES_FOLDER_PATH = r'unmasked-resized-images/'
-IMAGE_SIZE = 224
+
+IMAGES_TO_EXAMINE_FOLDER_PATH = r'images-to-examine/'
+MARKED_IMAGES_FOLDER_PATH = r'marked-images/'
+CLASSIFIER_PATH = "./classifier-simplified.h5"
+IMAGE_SIZE = (24, 22)
 
 
 # test function used to calibrate classifier
 def show_image_with_indications():
-	image = cv2.imread(IMAGES_FOLDER_PATH + 'test1.jpg')
+	image = cv2.imread(MARKED_IMAGES_FOLDER_PATH + 'test1.jpg')
 	classifier = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
 	boxes = classifier.detectMultiScale(image, 1.2, 5)
@@ -29,79 +27,62 @@ def show_image_with_indications():
 	cv2.destroyAllWindows()
 
 
-def resize_image(image: any, x: int, x2: int, y: int, y2: int):
-	spread = 10
-	cropped_image = image[y - spread : y2 + spread, x - spread : x2 + spread]
-	dim = (IMAGE_SIZE, IMAGE_SIZE)
-
-	return cv2.resize(cropped_image, dim, interpolation = cv2.INTER_AREA)
-
-
-def save_resized_face_image(image: any, image_index: int, box_index: int, x: int, x2: int, y: int, y2: int):
-	resized_image = resize_image(image, x, x2, y, y2)
-	filename = 'm-' + str(image_index) + '-' + str(box_index) + '.jpg'
-	os.chdir(RESIZED_IMAGES_FOLDER_PATH)
-	cv2.imwrite(filename, resized_image)
-	os.chdir('..')
-	os.chdir(MASKED_RESIZED_IMAGES_FOLDER_PATH)
-	cv2.imwrite(filename, resized_image)
-	os.chdir('..')
-
-
-def handle_image(image: any, image_index: int, classifier: any):
-	boxes = classifier.detectMultiScale(image, 1.2, 5)
-	box_index = 1
-
-	for box in boxes:
-		x, y, width, height = box
-		x2, y2 = x + width, y + height
-		save_resized_face_image(image, image_index, box_index, x, x2, y, y2)
-		box_index += 1
-
-
-def clear_resized_images():
-	files = glob.glob(RESIZED_IMAGES_FOLDER_PATH + '*.jpg')
+def clear_marked_images_folder():
+	files = glob.glob(MARKED_IMAGES_FOLDER_PATH + '*.jpg')
 	files.append
 	for f in files:
          os.remove(f)
 
 
-def generate_csv():
-	csv_data = []
+def resize_image(image: any, x: int, x2: int, y: int, y2: int):
+	spread = 0
+	cropped_image = image[y - spread : y2 + spread, x - spread : x2 + spread]
 
-	images_paths = list(filter(lambda k: '.jpg' in k, os.listdir(MASKED_RESIZED_IMAGES_FOLDER_PATH)))
-
-	for path in images_paths:
-		csv_data.append([0, 0, 0, 0, 'with_mask', '1.jpg', 0, 0, '1', '1', path])
-
-	images_paths = list(filter(lambda k: '.jpg' in k, os.listdir(UNMASKED_RESIZED_IMAGES_FOLDER_PATH)))
-
-	for path in images_paths:
-		csv_data.append([0, 0, 0, 0, 'without_mask', '1.jpg', 0, 0, '1', '1', path])
-
-	print(csv_data)
-
-	dataframe = pandas.DataFrame(numpy.array(csv_data), columns=['xmin', 'ymin', 'xmax', 'ymax', 'label', 'file', 'width', 'height', 'annotation_file', 'image_file', 'cropped_image_file'])
-	dataframe.to_csv('images.csv', index=False)
+	return cv2.resize(cropped_image, IMAGE_SIZE, interpolation = cv2.INTER_AREA).reshape(1, 24, 22, 3)
 
 
-def main() :
-	# clear_resized_images()
-
-	images_paths = list(filter(lambda k: 'jpg' in k, os.listdir(IMAGES_FOLDER_PATH)))
-	images_paths = [IMAGES_FOLDER_PATH + path for path in images_paths]
+def examine_image(image_name: str, image_path: str, model):
+	image = cv2.imread(image_path)
 
 	cascade_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-	image_index = 1
+	# get boxes containing faces
+	boxes = cascade_classifier.detectMultiScale(image, 1.2, 5)
 
-	for path in images_paths:
-		handle_image(cv2.imread(path), image_index, cascade_classifier)
-		image_index += 1
+	for box in boxes:
+		x, y, width, height = box
+		x2, y2 = x + width, y + height
 
-	generate_csv()
-	# uncomment to test a single image
-	# show_image_with_indications()
+		# get image fragment containing face in appropriate shape
+		face_fragment = resize_image(cv2.cvtColor(image, cv2.COLOR_BGR2RGB), x, x2, y, y2)
+
+		# 0 - with, 1 - without
+		pred = model.predict(face_fragment, verbose=0)
+
+		color = (0,255,0)
+		if numpy.argmax(pred, axis=1)[0] == 1:
+			color = (0,0,255)
+
+		cv2.rectangle(image, (x, y), (x2, y2), color, 5)
+
+	# copy image to marked-images folde
+	os.chdir(MARKED_IMAGES_FOLDER_PATH)
+	cv2.imwrite('marked-' + image_name, image)
+	os.chdir('..')
+
+
+def main():
+	clear_marked_images_folder()
+
+	# get images to examine
+	images_names = list(filter(lambda k: 'jpg' in k, os.listdir(IMAGES_TO_EXAMINE_FOLDER_PATH)))
+	images_paths = [IMAGES_TO_EXAMINE_FOLDER_PATH + path for path in images_names]
+	
+	# load classifier
+	model = tensorflow.keras.models.load_model(CLASSIFIER_PATH)
+
+	for name, path in zip(images_names, images_paths):
+		examine_image(name, path, model)
 
 
 
