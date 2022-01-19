@@ -15,10 +15,6 @@ def horizontal_flip(image: any):
     return cv2.flip(image, 1)
 
 
-def vertical_flip(image: any):
-    return cv2.flip(image, 0)
-
-
 def increase_brightness(image: any):
     mutation = 70
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -50,8 +46,6 @@ def modify_and_save_images(image: any, file_suffix: str):
     suffix = "-"
 
     save_image(horizontal_flip(image), file_suffix[:-4] + suffix + "h")
-    save_image(vertical_flip(image), file_suffix[:-4] + suffix + "v")
-    save_image(horizontal_flip(vertical_flip(image)), file_suffix[:-4] + suffix + "hv")
     save_image(increase_brightness(image), file_suffix[:-4] + suffix + "b")
 
 
@@ -77,6 +71,7 @@ def main():
 
 
 
+# method used to augment real-used dataset with the help of `train_df.csv`
 def augment_data():
     clear_modified_images()
     csv = pandas.read_csv('train_df.csv').to_numpy()
