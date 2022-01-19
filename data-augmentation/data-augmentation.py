@@ -114,5 +114,5 @@ def augment_data():
 
 
 
-# main()
-augment_data()
+main()
+# augment_data()

@@ -9,6 +9,8 @@ IMAGES_TO_EXAMINE_FOLDER_PATH = r'images-to-examine/'
 MARKED_IMAGES_FOLDER_PATH = r'marked-images/'
 CLASSIFIER_PATH = r'classifier-simplified.h5'
 IMAGE_SIZE = (24, 22)
+DETECTOR_SCALE_FACTOR = 1.2
+DETECTOR_MIN_NEIGHBORS = 5
 
 
 # test function used to calibrate classifier
@@ -16,7 +18,7 @@ def show_image_with_indications():
 	image = cv2.imread(MARKED_IMAGES_FOLDER_PATH + 'test1.jpg')
 	classifier = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-	boxes = classifier.detectMultiScale(image, 1.2, 5)
+	boxes = classifier.detectMultiScale(image, DETECTOR_SCALE_FACTOR, DETECTOR_MIN_NEIGHBORS)
 	for box in boxes:
 		x, y, width, height = box
 		x2, y2 = x + width, y + height
@@ -47,7 +49,7 @@ def examine_image(image_name: str, image_path: str, model):
 	cascade_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
 	# get boxes containing faces
-	boxes = cascade_classifier.detectMultiScale(image, 1.2, 5)
+	boxes = cascade_classifier.detectMultiScale(image, DETECTOR_SCALE_FACTOR, DETECTOR_MIN_NEIGHBORS)
 
 	for box in boxes:
 		x, y, width, height = box
