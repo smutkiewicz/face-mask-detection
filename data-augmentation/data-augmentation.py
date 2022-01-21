@@ -8,7 +8,9 @@ import numpy
 
 TEST_IMAGES_FOLDER_PATH = r'test-images/'
 MODIFIED_IMAGES_FOLDER_PATH = r'modified-images/'
-CROPPED_IMAGES_FOLDER_PATH = r'cropped_images/'
+IMAGES_TO_MODIFY_FOLDER_PATH = r'images-to-modify/'
+CSV_TO_READ = 'train_df.csv'
+CLASS_TO_AUGMENT = 'without_mask'
 
 
 def horizontal_flip(image: any):
@@ -47,6 +49,7 @@ def modify_and_save_images(image: any, file_suffix: str):
 
     save_image(horizontal_flip(image), file_suffix[:-4] + suffix + "h")
     save_image(increase_brightness(image), file_suffix[:-4] + suffix + "b")
+    save_image(increase_brightness(horizontal_flip(image)), file_suffix[:-4] + suffix + "bh")
 
 
 def handle_image(image: any, file_suffix: str):
@@ -74,14 +77,14 @@ def main():
 # method used to augment real-used dataset with the help of `train_df.csv`
 def augment_data():
     clear_modified_images()
-    csv = pandas.read_csv('train_df.csv').to_numpy()
+    csv = pandas.read_csv(CSV_TO_READ).to_numpy()
 
     mask_off = []
 
-    #xmin,ymin,xmax,ymax,label,file,width,height,annotation_file,image_file,cropped_image_file
+    #columns - xmin,ymin,xmax,ymax,label,file,width,height,annotation_file,image_file,cropped_image_file
 
     for element in csv:
-     if element[4] == 'without_mask':
+     if element[4] == CLASS_TO_AUGMENT:
         mask_off.append(True)
      else:
         mask_off.append(False)
@@ -89,9 +92,9 @@ def augment_data():
     csv = csv[mask_off]
 
     augmented_csv = []
-    suffixes = ['-h', '-v', '-hv', '-b']
+    suffixes = ['-h', '-b', '-bh']
     for element in csv:
-        handle_image(cv2.imread(CROPPED_IMAGES_FOLDER_PATH + element[10]), element[10])
+        handle_image(cv2.imread(IMAGES_TO_MODIFY_FOLDER_PATH + element[10]), element[10])
 
         for suffix in suffixes:
             position = copy.deepcopy(element)
